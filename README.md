@@ -16,9 +16,15 @@
 telnet localhost 3306
 
 netstat -ano | findstr :3306    # Windows
+
 本项目配置了自动初始化 SQL 脚本（见 src/main/resources/sql/），无需手动创建数据库
 2.进入目录并运行
 cd online-exam
-mvn spring-boot:run
+
+mvn spring-boot:run  或者
+
+.\mvnw spring-boot:run  
+<img width="376" height="53" alt="image" src="https://github.com/user-attachments/assets/503bbe24-e479-43e6-8ed2-53e238fe8330" />
+
 
 3.访问 http://localhost:8080
