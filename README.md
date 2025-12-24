@@ -18,6 +18,7 @@ telnet localhost 3306
 netstat -ano | findstr :3306    # Windows
 
 本项目配置了自动初始化 SQL 脚本（见 src/main/resources/sql/），无需手动创建数据库
+
 需要修改application.properties文件里的密码：spring.datasource.password=你的mysql密码
 
 2.进入目录并运行
@@ -29,4 +30,4 @@ mvn spring-boot:run  或者
 <img width="376" height="53" alt="image" src="https://github.com/user-attachments/assets/503bbe24-e479-43e6-8ed2-53e238fe8330" />
 
 
-3.访问 http://localhost:8080
+3.访问 http://localhost:8080//question
