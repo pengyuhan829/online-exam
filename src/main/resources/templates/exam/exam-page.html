@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>在线考试</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        .question-card {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .option-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .option-item:hover {
+            background-color: #e9ecef;
+        }
+        .cheat-alert {
+            display: none;
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: #ffc107;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <!-- 倒计时 -->
+    <div id="timer">剩余时间：120:00</div>
+    
+    <!-- 切屏警告 -->
+    <div id="cheatAlert" class="cheat-alert">
+        ⚠️ 检测到切屏！次数：<span id="switchCount">0</span>
+    </div>
+    
+    <div class="container mt-5" style="padding-top: 60px;">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h1 class="card-title" th:text="${paper.title}">试卷标题</h1>
+                <p class="card-text" th:text="${paper.description}">试卷描述</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>考试时长：</strong><span th:text="${paper.duration}">120</span>分钟
+                    </div>
+                    <div class="col-md-6">
+                        <strong>试卷总分：</strong><span th:text="${paper.totalScore}">100</span>分
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <form id="examForm" th:action="@{/exam/submit/{paperId}(paperId=${paper.id})}" method="post">
+            <div th:each="q, iter : ${questions}" class="question-card">
+                <h4>
+                    <span class="badge bg-secondary" th:text="${iter.index + 1}">1</span>
+                    <span th:text="${q.content}">题目内容</span>
+                    <small class="text-danger">(<span th:text="${q.score}">5</span>分)</small>
+                </h4>
+                
+                <!-- 单选题 -->
+                <div th:if="${q.type == 'SINGLE'}">
+                    <div th:each="opt : ${q.options}" class="option-item">
+                        <input type="radio" 
+                               th:name="'answer_' + ${q.id}" 
+                               th:value="${opt}" 
+                               th:id="${'q' + q.id + '_' + opt}"
+                               class="form-check-input">
+                        <label th:for="${'q' + q.id + '_' + opt}" 
+                               class="form-check-label ms-2" 
+                               th:text="${opt}">选项</label>
+                    </div>
+                </div>
+                
+                <!-- 多选题 -->
+                <div th:if="${q.type == 'MULTI'}">
+                    <div th:each="opt : ${q.options}" class="option-item">
+                        <input type="checkbox" 
+                               th:name="'answer_' + ${q.id}" 
+                               th:value="${opt}" 
+                               th:id="${'q' + q.id + '_' + opt}"
+                               class="form-check-input">
+                        <label th:for="${'q' + q.id + '_' + opt}" 
+                               class="form-check-label ms-2" 
+                               th:text="${opt}">选项</label>
+                    </div>
+                </div>
+                
+                <!-- 填空题 -->
+                <div th:if="${q.type == 'FILL'}">
+                    <input type="text" 
+                           th:name="'answer_' + ${q.id}" 
+                           class="form-control" 
+                           placeholder="请输入答案"
+                           style="width: 300px;">
+                </div>
+                
+                <!-- 简答题 -->
+                <div th:if="${q.type == 'SUBJECTIVE'}">
+                    <textarea th:name="'answer_' + ${q.id}" 
+                              class="form-control" 
+                              rows="4" 
+                              placeholder="请输入答案"></textarea>
+                </div>
+                
+                <!-- 保存状态 -->
+                <div class="mt-2">
+                    <span id="saveStatus_${q.id}" class="badge bg-secondary">未保存</span>
+                </div>
+            </div>
+            
+            <div class="text-center my-5">
+                <button type="submit" class="btn btn-success btn-lg px-5" onclick="return confirmSubmit()">
+                    <i class="bi bi-send-fill"></i> 提交试卷
+                </button>
+                <button type="button" class="btn btn-warning btn-lg px-5 ms-3" onclick="saveAllAnswers()">
+                    <i class="bi bi-save"></i> 暂存答案
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // ========== 倒计时功能 ==========
+        let totalMinutes = [[${paper.duration}]] || 120;
+        let totalSeconds = totalMinutes * 60;
+        let timerInterval;
+        
+        function updateTimer() {
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert("时间到！正在自动提交试卷...");
+                document.getElementById("examForm").submit();
+                return;
+            }
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            document.getElementById("timer").textContent = 
+                `剩余时间：${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // 最后5分钟变红色
+            if (totalSeconds <= 300) {
+                document.getElementById("timer").style.background = "#dc3545";
+                document.getElementById("timer").style.color = "white";
+            }
+            
+            totalSeconds--;
+        }
+        
+        // ========== 防作弊功能 ==========
+        let switchCount = 0;
+        
+        // 检测窗口焦点变化
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                switchCount++;
+                document.getElementById("switchCount").textContent = switchCount;
+                document.getElementById("cheatAlert").style.display = "block";
+                
+                // 每3次切屏警告一次
+                if (switchCount % 3 === 0) {
+                    alert(`⚠️ 警告：您已切换窗口 ${switchCount} 次！\n频繁切屏可能导致考试无效。`);
+                }
+                
+                // 10秒后隐藏警告
+                setTimeout(() => {
+                    document.getElementById("cheatAlert").style.display = "none";
+                }, 10000);
+            }
+        });
+        
+        // ========== 答案保存功能 ==========
+        function saveAnswer(questionId) {
+            let answer = "";
+            const answerInputs = document.querySelectorAll(`input[name='answer_${questionId}'], textarea[name='answer_${questionId}']`);
+            
+            if (answerInputs.length > 1) { // 选择题
+                const selected = [];
+                answerInputs.forEach(input => {
+                    if (input.checked) selected.push(input.value);
+                });
+                answer = selected.join(",");
+            } else if (answerInputs.length === 1) { // 填空/简答
+                answer = answerInputs[0].value;
+            }
+            
+            // 更新保存状态
+            const statusSpan = document.getElementById(`saveStatus_${questionId}`);
+            if (answer.trim()) {
+                statusSpan.className = "badge bg-success";
+                statusSpan.textContent = "已保存";
+                
+                // 保存到localStorage
+                localStorage.setItem(`exam_${questionId}`, answer);
+            } else {
+                statusSpan.className = "badge bg-secondary";
+                statusSpan.textContent = "未保存";
+            }
+            
+            return answer;
+        }
+        
+        // 保存所有答案
+        function saveAllAnswers() {
+            const questionElements = document.querySelectorAll('.question-card');
+            questionElements.forEach((element, index) => {
+                const questionId = element.querySelector('h4').textContent.match(/\d+/)?.[0] || (index + 1);
+                saveAnswer(questionId);
+            });
+            alert("✅ 所有答案已暂存到本地！");
+        }
+        
+        // 自动保存定时器（每30秒）
+        setInterval(saveAllAnswers, 30000);
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            // 启动计时器
+            timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // 立即显示一次
+            
+            // 输入时自动保存
+            document.addEventListener("input", function(e) {
+                const name = e.target.name;
+                if (name && name.startsWith("answer_")) {
+                    const questionId = name.split("_")[1];
+                    saveAnswer(questionId);
+                }
+            });
+            
+            // 选择时自动保存
+            document.addEventListener("change", function(e) {
+                const name = e.target.name;
+                if (name && name.startsWith("answer_")) {
+                    const questionId = name.split("_")[1];
+                    saveAnswer(questionId);
+                }
+            });
+        };
+        
+        // 提交确认
+        function confirmSubmit() {
+            const unanswered = document.querySelectorAll('.badge.bg-secondary');
+            if (unanswered.length > 0) {
+                return confirm(`您还有 ${unanswered.length} 题未作答！\n确定要提交吗？`);
+            }
+            return confirm("确定要提交试卷吗？提交后不可修改！");
+        }
+        
+        // 防止误关页面
+        window.onbeforeunload = function(e) {
+            e.preventDefault();
+            e.returnValue = "⚠️ 考试正在进行中，离开页面可能会导致答案丢失！";
+        };
+    </script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</body>
+</html>
