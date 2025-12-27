@@ -30,4 +30,7 @@ mvn spring-boot:run  或者
 <img width="376" height="53" alt="image" src="https://github.com/user-attachments/assets/503bbe24-e479-43e6-8ed2-53e238fe8330" />
 
 
-3.访问 http://localhost:8080/questions
+3.访问 
+  人1：题库管理：http://localhost:8080/questions
+
+  人2：组卷+考试流程：http://localhost:8080/paper
