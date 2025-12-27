@@ -16,7 +16,8 @@
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
+CREATE DATABASE IF NOT EXISTS online_exam;
+USE online_exam;
 -- ----------------------------
 -- Table structure for knowledge_point
 -- ----------------------------

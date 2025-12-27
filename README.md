@@ -7,7 +7,7 @@
 - HTML + Thymeleaf 模板
 
 ## 如何运行
-1. 克隆项目（JDK 21）
+1. 克隆项目
    ```bash
    git clone https://github.com/pengyuhan829/online-exam.git
 启动 MySQL 服务（确保 3306 端口可用）
@@ -30,7 +30,9 @@ mvn spring-boot:run  或者
 <img width="376" height="53" alt="image" src="https://github.com/user-attachments/assets/503bbe24-e479-43e6-8ed2-53e238fe8330" />
 
 
-3.访问 
-  人1：题库管理：http://localhost:8080/questions
-
-  人2：组卷+考试流程：http://localhost:8080/paper
+3.题目管理 访问 http://localhost:8080/questions
+  判分管理后台 http://localhost:8080/grading/dashboard
+  客观题自动判分 http://localhost:8080/grading/auto-grade
+  申诉管理 http://localhost:8080/grading/appeal
+  试卷管理 http://localhost:8080/paper
+  成绩报表 http://localhost:8080/grading/report
