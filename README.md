@@ -7,7 +7,7 @@
 - HTML + Thymeleaf 模板
 
 ## 如何运行
-1. 克隆项目
+1. 克隆项目（JDK 21）
    ```bash
    git clone https://github.com/pengyuhan829/online-exam.git
 启动 MySQL 服务（确保 3306 端口可用）
