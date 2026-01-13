@@ -58,19 +58,32 @@ public class ExamController {
                 if (q.getOptions() != null && !q.getOptions().trim().isEmpty()) {
                     try {
                         // 简单处理：假设格式是 ["A.选项1","B.选项2"]
-                        String optionsStr = q.getOptions();
-                        optionsStr = optionsStr.replace("[", "").replace("]", "").replace("\"", "");
-                        List<String> options = Arrays.asList(optionsStr.split(","));
+                        String optionsStr = q.getOptions().trim();
+                        // 移除首尾的方括号和引号
+                        optionsStr = optionsStr.replaceAll("^\\[|\\]$", "");
+                        // 分割选项（处理带引号的情况）
+                        List<String> options = new ArrayList<>();
+                        String[] parts = optionsStr.split("\",\"");
+                        for (String part : parts) {
+                            String cleaned = part.replace("\"", "").trim();
+                            if (!cleaned.isEmpty()) {
+                                options.add(cleaned);
+                            }
+                        }
                         
                         // 打乱选项顺序（防作弊）
-                        if (q.getType().equals("SINGLE") || q.getType().equals("MULTI")) {
+                        if ((q.getType().equals("SINGLE") || q.getType().equals("MULTIPLE")) && !options.isEmpty()) {
                             Collections.shuffle(options);
                         }
                         
                         qMap.put("options", options);
                     } catch (Exception e) {
+                        System.err.println("解析选项失败: " + e.getMessage());
                         qMap.put("options", new ArrayList<>());
                     }
+                } else {
+                    // 填空题和主观题没有选项
+                    qMap.put("options", new ArrayList<>());
                 }
                 
                 questions.add(qMap);
@@ -78,7 +91,14 @@ public class ExamController {
         }
         
         // 打乱题目顺序（防作弊）
-        Collections.shuffle(questions);
+        // Collections.shuffle(questions); // 暂时注释掉，方便调试
+        
+        System.out.println("=== 开始考试 ===");
+        System.out.println("试卷ID: " + paperId);
+        System.out.println("题目数量: " + questions.size());
+        for (Map<String, Object> q : questions) {
+            System.out.println("题目: " + q.get("content") + " | 类型: " + q.get("type"));
+        }
         
         model.addAttribute("paper", paper);
         model.addAttribute("questions", questions);

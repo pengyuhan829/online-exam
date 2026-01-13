@@ -72,6 +72,7 @@ public class PaperController {
                 qMap.put("id", q.getId());
                 qMap.put("content", q.getContent());
                 qMap.put("type", q.getType());
+                qMap.put("difficulty", q.getDifficulty()); // 添加难度字段
                 qMap.put("score", pq.getScore());
                 questions.add(qMap);
             });
@@ -98,7 +99,12 @@ public class PaperController {
     
     @PostMapping("/{id}/add-questions")
     public String addQuestions(@PathVariable Long id, 
-                              @RequestParam List<Long> questionIds) {
+                              @RequestParam(required = false) List<Long> questionIds) {
+        // 检查是否选择了题目
+        if (questionIds == null || questionIds.isEmpty()) {
+            return "redirect:/paper/" + id + "/add-questions?error=noQuestions";
+        }
+        
         // 先删除旧的
         paperQuestionRepository.deleteByPaperId(id);
         

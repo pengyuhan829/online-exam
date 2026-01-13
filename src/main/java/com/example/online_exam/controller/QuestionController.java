@@ -77,17 +77,41 @@ public class QuestionController {
 
     @PostMapping("/add")
     public String save(@ModelAttribute Question question) {
-        if (question.getContent() == null || question.getContent().trim().isEmpty()) {
-        return "question/form"; // 提示填写内容
-    }
-    
-    if (question.getSubjectId() == null) {
-        question.setSubjectId(1L); // 默认科目 ID
-    }
+        try {
+            // 验证题目内容
+            if (question.getContent() == null || question.getContent().trim().isEmpty()) {
+                return "question/form";
+            }
+            
+            // 设置默认值
+            if (question.getSubjectId() == null) {
+                question.setSubjectId(1L);
+            }
+            if (question.getDifficulty() == null) {
+                question.setDifficulty(1);
+            }
+            if (question.getType() == null || question.getType().trim().isEmpty()) {
+                question.setType("SINGLE");
+            }
+            
+            // 处理选项字段：填空题和主观题不需要选项
+            if (question.getOptions() != null && question.getOptions().trim().isEmpty()) {
+                question.setOptions(null);
+            }
+            
+            // 处理答案字段
+            if (question.getAnswer() != null && question.getAnswer().trim().isEmpty()) {
+                question.setAnswer(null);
+            }
 
-
-        questionRepository.save(question);
-        return "redirect:/questions";
+            questionRepository.save(question);
+            return "redirect:/questions";
+        } catch (Exception e) {
+            // 打印错误日志
+            System.err.println("保存题目失败: " + e.getMessage());
+            e.printStackTrace();
+            return "question/form";
+        }
     }
 
     @GetMapping("/edit/{id}")
