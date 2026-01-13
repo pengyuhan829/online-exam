@@ -120,4 +120,13 @@ public class ExamController {
         model.addAttribute("message", "试卷提交成功！客观题已自动批改。");
         return "exam/result";
     }
+    
+    // 查看考试记录
+    @GetMapping("/records")
+    public String records(Model model) {
+        // TODO: 获取当前登录学生的考试记录
+        // 暂时返回空列表
+        model.addAttribute("records", new java.util.ArrayList<>());
+        return "exam/records";
+    }
 }

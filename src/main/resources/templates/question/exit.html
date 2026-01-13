@@ -15,22 +15,22 @@
 
     <div class="mb-3">
         <label class="form-label">题型</label>
-        <select name="type" class="form-select" th:value="${question.type}">
-            <option value="SINGLE">单选题</option>
-            <option value="MULTIPLE">多选题</option>
-            <option value="FILL">填空题</option>
-            <option value="SUBJECTIVE">主观题</option>
+        <select name="type" class="form-select">
+            <option value="SINGLE" th:selected="${question.type == 'SINGLE'}">单选题</option>
+            <option value="MULTIPLE" th:selected="${question.type == 'MULTIPLE'}">多选题</option>
+            <option value="FILL" th:selected="${question.type == 'FILL'}">填空题</option>
+            <option value="SUBJECTIVE" th:selected="${question.type == 'SUBJECTIVE'}">主观题</option>
         </select>
     </div>
 
     <div class="mb-3">
         <label class="form-label">难度</label>
-        <select name="difficulty" class="form-select" th:value="${question.difficulty}">
-            <option value="1">简单</option>
-            <option value="2">中等</option>
-            <option value="3">较难</option>
-            <option value="4">困难</option>
-            <option value="5">极难</option>
+        <select name="difficulty" class="form-select">
+            <option value="1" th:selected="${question.difficulty == 1}">简单</option>
+            <option value="2" th:selected="${question.difficulty == 2}">中等</option>
+            <option value="3" th:selected="${question.difficulty == 3}">较难</option>
+            <option value="4" th:selected="${question.difficulty == 4}">困难</option>
+            <option value="5" th:selected="${question.difficulty == 5}">极难</option>
         </select>
     </div>
 
@@ -46,11 +46,12 @@
 
     <div class="mb-3">
         <label class="form-label">科目</label>
-        <select name="subjectId" class="form-select" th:value="${question.subjectId}">
+        <select name="subjectId" class="form-select">
             <option value="">请选择科目</option>
             <option th:each="s : ${subjects}" 
                     th:value="${s.id}" 
-                    th:text="${s.name}"></option>
+                    th:text="${s.name}"
+                    th:selected="${question.subjectId == s.id}"></option>
         </select>
     </div>
 

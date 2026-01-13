@@ -41,11 +41,11 @@
 <h2 class="fw-bold mb-4"><i class="bi bi-question-circle text-primary"></i> 题库管理</h2>
 
 <form method="get" class="mb-3">
-    <div class="row">
-        <div class="col-md-4">
+    <div class="row g-2">
+        <div class="col-md-3">
             <input type="text" name="search" th:value="${search}" placeholder="搜索题目内容..." class="form-control">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <select name="subjectId" class="form-select">
                 <option value="">全部科目</option>
                 <option th:each="s : ${subjects}" 
@@ -54,7 +54,7 @@
                         th:selected="${subjectId == s.id}"></option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <select name="type" class="form-select">
                 <option value="">全部题型</option>
                 <option value="SINGLE" th:selected="${type == 'SINGLE'}">单选题</option>
@@ -73,8 +73,10 @@
                 <option value="5" th:selected="${difficulty == 5}">极难</option>
             </select>
         </div>
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-outline-secondary">搜索</button>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> 搜索
+            </button>
         </div>
     </div>
 </form>

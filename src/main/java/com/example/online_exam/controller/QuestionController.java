@@ -27,28 +27,35 @@ public class QuestionController {
                    @RequestParam(required = false) Long subjectId,
                    @RequestParam(required = false) String type,
                    @RequestParam(required = false) Integer difficulty) {
-        // 构造查询条件
+        // 构造查询条件 - 先获取所有题目
         List<Question> questions = questionRepository.findAll();
 
+        // 按搜索关键词过滤
         if (search != null && !search.trim().isEmpty()) {
-            questions = questionRepository.findByContentContaining(search);
+            final String searchLower = search.toLowerCase();
+            questions = questions.stream()
+                    .filter(q -> q.getContent() != null && q.getContent().toLowerCase().contains(searchLower))
+                    .toList();
         }
 
+        // 按科目过滤
         if (subjectId != null) {
             questions = questions.stream()
-                    .filter(q -> q.getSubjectId().equals(subjectId))
+                    .filter(q -> q.getSubjectId() != null && q.getSubjectId().equals(subjectId))
                     .toList();
         }
 
+        // 按题型过滤
         if (type != null && !type.isEmpty()) {
             questions = questions.stream()
-                    .filter(q -> q.getType().equals(type))
+                    .filter(q -> q.getType() != null && q.getType().equals(type))
                     .toList();
         }
 
+        // 按难度过滤
         if (difficulty != null) {
             questions = questions.stream()
-                    .filter(q -> q.getDifficulty().equals(difficulty))
+                    .filter(q -> q.getDifficulty() != null && q.getDifficulty().equals(difficulty))
                     .toList();
         }
 

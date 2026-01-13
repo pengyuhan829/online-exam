@@ -24,7 +24,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         
                         // 老师可以访问：题目管理、试卷管理、判分管理
-                        .requestMatchers("/questions/**", "/paper/**", "/grading/**").hasAnyRole("TEACHER", "ADMIN")
+                        .requestMatchers("/paper/**", "/grading/**").hasAnyRole("TEACHER", "ADMIN")
+                        
+                        // 题库所有登录用户都可以查看（学生提交试卷后可以查看）
+                        .requestMatchers("/questions/**").authenticated()
                         
                         // 学生可以访问：考试相关
                         .requestMatchers("/exam/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")

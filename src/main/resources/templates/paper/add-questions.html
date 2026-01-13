@@ -97,15 +97,14 @@
                                     </div>
                                     <div>
                                         <span class="badge question-type-badge" 
-                                              th:classappend="${question.type} == 'single' ? 'bg-primary' : 
-                                                              ${question.type} == 'multi' ? 'bg-success' : 
-                                                              ${question.type} == 'fill' ? 'bg-warning' : 'bg-info'"
-                                              th:text="${question.type}">single</span>
+                                              th:classappend="${question.type == 'SINGLE'} ? 'bg-primary' : 
+                                                              ${question.type == 'MULTIPLE'} ? 'bg-success' : 
+                                                              ${question.type == 'FILL'} ? 'bg-warning' : 'bg-info'"
+                                              th:text="${question.type == 'SINGLE'} ? '单选题' : 
+                                                       ${question.type == 'MULTIPLE'} ? '多选题' : 
+                                                       ${question.type == 'FILL'} ? '填空题' : '主观题'">单选题</span>
                                         <span class="badge bg-secondary question-type-badge ms-2">
-                                            难度: <span th:text="${question.difficulty}">medium</span>
-                                        </span>
-                                        <span class="badge bg-light text-dark question-type-badge ms-2">
-                                            知识点: <span th:text="${question.knowledgePoint}">Java基础</span>
+                                            难度: <span th:text="${question.difficulty}">1</span>
                                         </span>
                                     </div>
                                 </div>
