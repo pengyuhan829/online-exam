@@ -1,12 +1,44 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>题库管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库管理 - 在线考试系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+    </style>
 </head>
-<body class="container mt-4">
-<h2>题库管理</h2>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
+    <div class="container mt-4 mb-5">
+<h2 class="fw-bold mb-4"><i class="bi bi-question-circle text-primary"></i> 题库管理</h2>
 
 <form method="get" class="mb-3">
     <div class="row">
@@ -47,30 +79,66 @@
     </div>
 </form>
 
-<a href="/questions/add" class="btn btn-primary mb-3">+ 添加题目</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="/questions/add" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> 添加题目
+    </a>
+    <a href="/" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> 返回首页
+    </a>
+</div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>题目</th>
-            <th>题型</th>
-            <th>难度</th>
-            <th>操作</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr th:each="q : ${questions}">
-            <td th:text="${q.id}"></td>
-            <td th:text="${q.content}"></td>
-            <td th:text="${q.type}"></td>
-            <td th:text="${q.difficulty}"></td>
-            <td>
-                <a th:href="@{/questions/edit/{id}(id=${q.id})}" class="btn btn-sm btn-warning">编辑</a>
-                <a th:href="@{/questions/delete/{id}(id=${q.id})}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除？')">删除</a>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>题目内容</th>
+                <th>题型</th>
+                <th>难度</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="q : ${questions}">
+                <td th:text="${q.id}"></td>
+                <td th:text="${q.content}"></td>
+                <td>
+                    <span th:if="${q.type == 'SINGLE'}" class="badge bg-primary">单选题</span>
+                    <span th:if="${q.type == 'MULTIPLE'}" class="badge bg-info">多选题</span>
+                    <span th:if="${q.type == 'FILL'}" class="badge bg-success">填空题</span>
+                    <span th:if="${q.type == 'SUBJECTIVE'}" class="badge bg-warning">主观题</span>
+                </td>
+                <td>
+                    <span th:if="${q.difficulty == 1}" class="badge bg-success">简单</span>
+                    <span th:if="${q.difficulty == 2}" class="badge bg-info">中等</span>
+                    <span th:if="${q.difficulty == 3}" class="badge bg-warning">较难</span>
+                    <span th:if="${q.difficulty == 4}" class="badge bg-danger">困难</span>
+                    <span th:if="${q.difficulty == 5}" class="badge bg-dark">极难</span>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a th:href="@{/questions/edit/{id}(id=${q.id})}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </a>
+                        <a th:href="@{/questions/delete/{id}(id=${q.id})}" 
+                           class="btn btn-danger" 
+                           onclick="return confirm('确定删除这道题目吗？')">
+                            <i class="bi bi-trash"></i> 删除
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <div class="container">
+        <p class="mb-0">© 2025 在线考试系统</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

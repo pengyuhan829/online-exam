@@ -1,66 +1,115 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>试卷管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试卷管理 - 在线考试系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+    </style>
 </head>
-<body class="container mt-4">
-    <h2>📄 试卷管理</h2>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
     
-    <div class="mb-3">
-        <a href="/paper/create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> 创建新试卷
-        </a>
-        <a href="/exam" class="btn btn-success ms-2">
-            <i class="bi bi-pencil-square"></i> 学生考试入口
-        </a>
-        <a href="/questions" class="btn btn-info ms-2">
-            <i class="bi bi-journal-text"></i> 题库管理
-        </a>
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-file-earmark-richtext text-primary"></i> 试卷管理
+            </h2>
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 返回首页
+            </a>
+        </div>
+        
+        <div class="mb-3">
+            <a href="/paper/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> 创建新试卷
+            </a>
+            <a href="/exam/list" class="btn btn-success ms-2">
+                <i class="bi bi-pencil-square"></i> 学生考试入口
+            </a>
+            <a href="/questions" class="btn btn-info ms-2">
+                <i class="bi bi-journal-text"></i> 题库管理
+            </a>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>试卷名称</th>
+                        <th>类型</th>
+                        <th>总分</th>
+                        <th>时长</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="paper : ${papers}">
+                        <td th:text="${paper.id}">1</td>
+                        <td th:text="${paper.title}">期中考试试卷</td>
+                        <td>
+                            <span th:if="${paper.paperType == 'FIXED'}" class="badge bg-primary">固定卷</span>
+                            <span th:if="${paper.paperType == 'RULE'}" class="badge bg-info">规则卷</span>
+                        </td>
+                        <td th:text="${paper.totalScore}">100</td>
+                        <td th:text="${paper.duration} + '分钟'">120分钟</td>
+                        <td>
+                            <span th:if="${paper.isActive}" class="badge bg-success">启用</span>
+                            <span th:if="${!paper.isActive}" class="badge bg-secondary">禁用</span>
+                        </td>
+                        <td th:text="${paper.createdTime != null ? #temporals.format(paper.createdTime, 'yyyy-MM-dd HH:mm') : 'N/A'}">2024-01-01 10:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/paper/{id}(id=${paper.id})}" class="btn btn-outline-info">
+                                    <i class="bi bi-eye"></i> 查看
+                                </a>
+                                <a th:href="@{/exam/start/{id}(id=${paper.id})}" class="btn btn-outline-success">
+                                    <i class="bi bi-play-circle"></i> 考试
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>试卷名称</th>
-                    <th>类型</th>
-                    <th>总分</th>
-                    <th>时长</th>
-                    <th>状态</th>
-                    <th>创建时间</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="paper : ${papers}">
-                    <td th:text="${paper.id}">1</td>
-                    <td th:text="${paper.title}">期中考试试卷</td>
-                    <td>
-                        <span th:if="${paper.paperType == 'FIXED'}" class="badge bg-primary">固定卷</span>
-                        <span th:if="${paper.paperType == 'RULE'}" class="badge bg-info">规则卷</span>
-                    </td>
-                    <td th:text="${paper.totalScore}">100</td>
-                    <td th:text="${paper.duration} + '分钟'">120分钟</td>
-                    <td>
-                        <span th:if="${paper.isActive}" class="badge bg-success">启用</span>
-                        <span th:if="${!paper.isActive}" class="badge bg-secondary">禁用</span>
-                    </td>
-                    <td th:text="${#temporals.format(paper.createdTime, 'yyyy-MM-dd HH:mm')}">2024-01-01 10:00</td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <a th:href="@{/paper/{id}(id=${paper.id})}" class="btn btn-outline-info">查看</a>
-                            <a th:href="@{/exam/start/{id}(id=${paper.id})}" class="btn btn-outline-success">考试</a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">© 2025 在线考试系统</p>
+        </div>
+    </footer>
     
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

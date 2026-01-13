@@ -117,3 +117,6 @@ CREATE TABLE `subject`  (
 INSERT INTO `subject` VALUES (1, '通用题库', NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- 在 init-db.sql 末尾添加
+INSERT INTO `users` (`username`, `password`, `role`, `real_name`) VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnutj8iAtepbyJscDnZYib8YiQB3GRB2WC', 'ADMIN', '管理员');
